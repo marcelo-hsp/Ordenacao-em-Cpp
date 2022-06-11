@@ -1,27 +1,28 @@
-﻿#include <cstdlib>
+﻿#include <array>
+#include <chrono>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>  
+#include <fstream>
 #include <iostream>
 #include <thread>
 #include <vector>
-#include <cmath>
-#include <chrono>
-#include <ctime>  
-#include <fstream>
+
+#include <Windows.h>
 
 #define QUANTIDADE_DE_NUMEROS_ALEATORIOS 100
+#define QUANTIDADE_DE_EXECUCOES_DE_UMA_THREAD 5
 
-void foo();
 void ordenaInsercao(std::vector<float> v);
 void ordenaSelecao(std::vector<float> v);
 void ordenaBolha(std::vector<float> v);
+std::array<std::thread, 3> threads;
 
 int main()
 {
-	std::vector<float> listaAleatoria;
-
-	std::thread t1 (foo);
-	t1.join();
-
 	int i;
+	std::vector<float> listaAleatoria;
+	
 	for (i = 0; i < QUANTIDADE_DE_NUMEROS_ALEATORIOS; i++)
 	{
 		float valor = rand() % 10000 + 1;
@@ -29,15 +30,38 @@ int main()
 		listaAleatoria.push_back(raizQuadradaDoValor);
 	}
 
-	ordenaBolha(listaAleatoria);
-	ordenaInsercao(listaAleatoria);
-	ordenaSelecao(listaAleatoria);
+	//for (i = 0; i < QUANTIDADE_DE_EXECUCOES_DE_UMA_THREAD; i++)
+	//{
+	//	std::thread t_bolha(ordenaBolha);
+	//	std::thread t_insercao(ordenaInsercao);
+	//	std::thread t_selecao(ordenaSelecao);
+	//	t_bolha.join();
+	//	t_insercao.join();
+	//	t_selecao.join();
+	//	Sleep(10);
+	//}
+	///*for (i = 0; i < QUANTIDADE_DE_EXECUCOES_DE_UMA_THREAD; i++)
+	//{
+	//	std::thread t_insercao(ordenaInsercao);
+	//	t_insercao.join();
+	//	Sleep(10);
+	//}
+	//for (i = 0; i < QUANTIDADE_DE_EXECUCOES_DE_UMA_THREAD; i++)
+	//{
+	//	std::thread t_selecao(ordenaSelecao);
+	//	t_selecao.join();
+	//	
+	//	Sleep(10);
+	//}*/
+	std::thread t_insercao(ordenaInsercao, listaAleatoria);
+	std::thread t_selecao(ordenaSelecao, listaAleatoria);
+	std::thread t_bolha(ordenaBolha, listaAleatoria);
+	t_bolha.join();
+	t_insercao.join();
+	t_selecao.join();
+	//ordenaInsercao(listaAleatoria);
+	//ordenaSelecao(listaAleatoria);
 	return 0;
-}
-
-void foo()
-{
-	std::cout << "foo" << std::endl;
 }
 
 void ordenaInsercao(std::vector<float> v) {
@@ -123,17 +147,3 @@ void ordenaBolha(std::vector<float> v) {
 		meuArquivo << elapsed_seconds.count() << std::endl;
 	}
 }
-
-
-//std::vector<int> listaAleatoria()
-//{
-//	std::vector<int>listaAleatoria;
-//	int i;
-//	for (i = 0; i < QUANTIDADE_DE_NUMEROS_ALEATORIOS; i++)
-//	{
-//		float valor = rand() % 10000 + 1;
-//		float raizQuadradaDoValor = sqrt(valor);
-//		listaAleatoria.push_back(raizQuadradaDoValor);
-//	}
-//	return listaAleatoria;
-//}
