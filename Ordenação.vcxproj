@@ -141,6 +141,11 @@
   <ItemGroup>
     <ClCompile Include="Origem.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="bolha.txt" />
+    <Text Include="insercao.txt" />
+    <Text Include="selecao.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
