@@ -1,22 +1,15 @@
-﻿#include <array>
-#include <chrono>
-#include <cmath>
+﻿#include <chrono>
 #include <cstdlib>
-#include <ctime>  
 #include <fstream>
 #include <iostream>
 #include <thread>
 #include <vector>
 
-#include <Windows.h>
-
 #define QUANTIDADE_DE_NUMEROS_ALEATORIOS 100
-#define QUANTIDADE_DE_EXECUCOES_DE_UMA_THREAD 5
 
-void ordenaInsercao(std::vector<float> v);
 void ordenaSelecao(std::vector<float> v);
+void ordenaInsercao(std::vector<float> v);
 void ordenaBolha(std::vector<float> v);
-std::array<std::thread, 3> threads;
 
 int main()
 {
@@ -26,41 +19,15 @@ int main()
 	for (i = 0; i < QUANTIDADE_DE_NUMEROS_ALEATORIOS; i++)
 	{
 		float valor = rand() % 10000 + 1;
-		float raizQuadradaDoValor = sqrt(valor);
-		listaAleatoria.push_back(raizQuadradaDoValor);
+		listaAleatoria.push_back(valor);
 	}
 
-	//for (i = 0; i < QUANTIDADE_DE_EXECUCOES_DE_UMA_THREAD; i++)
-	//{
-	//	std::thread t_bolha(ordenaBolha);
-	//	std::thread t_insercao(ordenaInsercao);
-	//	std::thread t_selecao(ordenaSelecao);
-	//	t_bolha.join();
-	//	t_insercao.join();
-	//	t_selecao.join();
-	//	Sleep(10);
-	//}
-	///*for (i = 0; i < QUANTIDADE_DE_EXECUCOES_DE_UMA_THREAD; i++)
-	//{
-	//	std::thread t_insercao(ordenaInsercao);
-	//	t_insercao.join();
-	//	Sleep(10);
-	//}
-	//for (i = 0; i < QUANTIDADE_DE_EXECUCOES_DE_UMA_THREAD; i++)
-	//{
-	//	std::thread t_selecao(ordenaSelecao);
-	//	t_selecao.join();
-	//	
-	//	Sleep(10);
-	//}*/
 	std::thread t_insercao(ordenaInsercao, listaAleatoria);
 	std::thread t_selecao(ordenaSelecao, listaAleatoria);
 	std::thread t_bolha(ordenaBolha, listaAleatoria);
-	t_bolha.join();
 	t_insercao.join();
 	t_selecao.join();
-	//ordenaInsercao(listaAleatoria);
-	//ordenaSelecao(listaAleatoria);
+	t_bolha.join();
 	return 0;
 }
 
@@ -109,7 +76,7 @@ void ordenaSelecao(std::vector<float> v) {
 			v[inicial] = aux;
 		}
 	}
-
+	// calcula o tempo decorrido na execução
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
 	
