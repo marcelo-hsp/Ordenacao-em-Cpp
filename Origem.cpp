@@ -50,7 +50,7 @@ int main()
 	t_selecao.join();
 	std::thread t_bolha(ordenaBolha, listaAleatoria);
 	t_bolha.join();
-	std::cout << "Fim de execução" << std::endl;
+	std::cout << "Fim de execução." << std::endl;
 	
 	return 0;
 }
@@ -77,6 +77,10 @@ void ordenaInsercao(std::vector<int> v)
 	if (meuArquivo.is_open())
 	{
 		meuArquivo << elapsed_seconds.count() << std::endl;
+	}
+	else
+	{
+		std::cout << "Falha ao abrir o arquivo. Não localizado." << std::endl;
 	}
 }
 
@@ -150,5 +154,9 @@ void ordenaBolha(std::vector<int> v)
 	if (meuArquivo.is_open())
 	{
 		meuArquivo << elapsed_seconds.count() << std::endl;
+	}
+	else
+	{
+		std::cout << "Falha ao abrir o arquivo. Não localizado." << std::endl;
 	}
 }
