@@ -1,24 +1,39 @@
-﻿#include <chrono>
+﻿/*
+UDESC - Universidade do Estado de Santa Catarina
+Estrutura de Dados II
+
+Na expectativa de se anallisar o tempo de execução de três Threads, uma thread para cada método de ordenação utilizei algumas ferramentas
+fornecidas pela biblioteca <chrono>, <cstdlib>, <fstream>, <iostream>, <thread> e <vector>. Todas elas se complementam e permitem
+que eu determine a velocidade que determinada função de ordenação alocada em thread executa por completo.
+
+Gerar os resultados em arquivos de texto são em geral mais rápidos que escritas em tela.
+
+
+Marcelo Henrique de Sousa Pinheiro
+*/
+
+#include <chrono>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <thread>
 #include <vector>
 
-#define QUANTIDADE_DE_NUMEROS_ALEATORIOS 100
+#define QUANTIDADE_DE_NUMEROS_ALEATORIOS 10000
 
-void ordenaSelecao(std::vector<float> v);
-void ordenaInsercao(std::vector<float> v);
-void ordenaBolha(std::vector<float> v);
+void ordenaSelecao(std::vector<int> v);
+void ordenaInsercao(std::vector<int> v);
+void ordenaBolha(std::vector<int> v);
 
 int main()
 {
 	int i;
-	std::vector<float> listaAleatoria;
-	
+	std::vector<int> listaAleatoria;
+	// Criação de um vetor com a quantidade QUANTIDADE_DE_NUMEROS_ALEATORIOS definida na linha 21
+	// 10000 valores aleatórios geram uma carga de trabalho possível de avaliar o tempo de execução
 	for (i = 0; i < QUANTIDADE_DE_NUMEROS_ALEATORIOS; i++)
 	{
-		float valor = rand() % 10000 + 1;
+		int valor = rand() % 10000 + 1;
 		listaAleatoria.push_back(valor);
 	}
 
@@ -31,22 +46,26 @@ int main()
 	return 0;
 }
 
-void ordenaInsercao(std::vector<float> v) {
+/*
+Funções
+*/
+
+void ordenaInsercao(std::vector<int> v) {
 	int inicial, atual;
 	int aux;
-	auto start = std::chrono::system_clock::now();
-	for (inicial = 1; inicial < QUANTIDADE_DE_NUMEROS_ALEATORIOS; inicial++) {
-		for (atual = inicial - 1; atual >= 0 && v[atual] > v[atual + 1]; atual--) {
+	auto start = std::chrono::system_clock::now(); // uma instância de auto definida como 'start' captura o tempo atual
+	for (inicial = 1; inicial < QUANTIDADE_DE_NUMEROS_ALEATORIOS; inicial++) 
+	{
+		for (atual = inicial - 1; atual >= 0 && v[atual] > v[atual + 1]; atual--) 
+		{
 			aux = v[atual];
 			v[atual] = v[atual + 1];
 			v[atual + 1] = aux;
 		}
 	}
-
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
-	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-	
+	// Gravação em arquivo
 	std::fstream meuArquivo;
 	meuArquivo.open("insercao.txt", std::ios::out);
 	if (meuArquivo.is_open())
@@ -55,22 +74,27 @@ void ordenaInsercao(std::vector<float> v) {
 	}
 }
 
-void ordenaSelecao(std::vector<float> v) {
+void ordenaSelecao(std::vector<int> v) 
+{
 	int i;
 	int valMenor, aux;
 	int posMenor;
 	int inicial;
 	auto start = std::chrono::system_clock::now();
-	for (inicial = 0; inicial < QUANTIDADE_DE_NUMEROS_ALEATORIOS - 1; inicial++) {
+	for (inicial = 0; inicial < QUANTIDADE_DE_NUMEROS_ALEATORIOS - 1; inicial++) 
+	{
 		valMenor = v[inicial];
 		posMenor = inicial;
-		for (i = inicial + 1; i < QUANTIDADE_DE_NUMEROS_ALEATORIOS; i++) {
-			if (v[i] < valMenor) {
+		for (i = inicial + 1; i < QUANTIDADE_DE_NUMEROS_ALEATORIOS; i++) 
+		{
+			if (v[i] < valMenor) 
+			{
 				valMenor = v[i];
 				posMenor = i;
 			}
 		}
-		if (posMenor != inicial) {
+		if (posMenor != inicial) 
+		{
 			aux = v[posMenor];
 			v[posMenor] = v[inicial];
 			v[inicial] = aux;
@@ -79,7 +103,7 @@ void ordenaSelecao(std::vector<float> v) {
 	// calcula o tempo decorrido na execução
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
-	
+	// Gravação em arquivo
 	std::fstream meuArquivo;
 	meuArquivo.open("selecao.txt", std::ios::out);
 	if (meuArquivo.is_open())
@@ -88,25 +112,27 @@ void ordenaSelecao(std::vector<float> v) {
 	}
 }
 
-void ordenaBolha(std::vector<float> v) {
+void ordenaBolha(std::vector<int> v) {
 	int i, troca;
 	int aux;
 	auto start = std::chrono::system_clock::now();
 	do {
 		troca = 0;
-		for (i = 0; i < QUANTIDADE_DE_NUMEROS_ALEATORIOS - 1; i++) {
-			if (v[i] > v[i + 1]) {
+		for (i = 0; i < QUANTIDADE_DE_NUMEROS_ALEATORIOS - 1; i++) 
+		{
+			if (v[i] > v[i + 1]) 
+			{
 				aux = v[i + 1];
 				v[i + 1] = v[i];
 				v[i] = aux;
 				troca = 1;
 			}
 		}
-	} while (troca == 1);
-
+	} 
+	while (troca == 1);
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
-	
+	// Gravação em arquivo
 	std::fstream meuArquivo;
 	meuArquivo.open("bolha.txt", std::ios::out);
 	if (meuArquivo.is_open())
