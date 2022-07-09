@@ -1,17 +1,4 @@
-﻿/*
-UDESC - Universidade do Estado de Santa Catarina
-Estrutura de Dados II
-
-Na expectativa de se anallisar o tempo de execução de três Threads, uma thread para cada método de ordenação utilizei algumas ferramentas
-fornecidas pela biblioteca <chrono>, <cstdlib>, <fstream>, <iostream>, <thread> e <vector>. Todas elas se complementam e permitem
-que eu determine a velocidade que determinada função de ordenação alocada em thread executa por completo.
-
-Gerar os resultados em arquivos de texto são em geral mais rápidos que escritas em tela.
-
-
-Marcelo Henrique de Sousa Pinheiro
-*/
-
+﻿// Marcelo Henrique de Sousa Pinheiro [Estrutura de Dados II]
 #include <chrono>
 #include <cstdlib>
 #include <fstream>
@@ -21,8 +8,8 @@ Marcelo Henrique de Sousa Pinheiro
 #include <vector>
 
 #define QUANTIDADE_DE_NUMEROS_ALEATORIOS 10000
-// 10000 valores aleatórios geram uma carga de trabalho possível de avaliar o tempo de execução
 
+/* Aula 09 (14/05/2022) Funções disponibilizadas no moodle [adaptadas]. */
 void ordenaSelecao(std::vector<int> v);
 void ordenaInsercao(std::vector<int> v);
 void ordenaBolha(std::vector<int> v);
@@ -30,28 +17,49 @@ void ordenaBolha(std::vector<int> v);
 int main()
 {
 	setlocale(LC_ALL, "Portuguese"); // Idioma Português para acentuação
-	
 	int i;
 	std::vector<int> listaAleatoria; // declaração de um vetor listaAleatoria
 	
-	// Criação de um vetor com a quantidade QUANTIDADE_DE_NUMEROS_ALEATORIOS definida acima
+	// Criação de um vetor com a quantidade (QUANTIDADE_DE_NUMEROS_ALEATORIOS) definida na linha 19
 	for (i = 0; i < QUANTIDADE_DE_NUMEROS_ALEATORIOS; i++)
 	{
-		int valorAleatorio = rand() % 10000 + 1; // função rand() obtida através da biblioteca cstdlib
+		int valorAleatorio = rand() % 100000 + 1; // função rand() obtida através da biblioteca cstdlib. Fornece um inteiro aleatório entre 1 e 10000.
 		listaAleatoria.push_back(valorAleatorio); // adicionando o valorAleatorio a ao vetor listaAleatoria utilizando push_back()
 	}
-	
-	/*Abaixo é definido três threads t_insercao, t_selecao e t_bolha. Cada uma recebe sua respectiva função e como argumento a mesma lista de números aleatórios*/
 
+	std::fstream meuArquivo;
+	meuArquivo.open("vetorDesordenado.txt", std::ios::out);
+	if (meuArquivo.is_open())
+	{
+		i = 0;
+		meuArquivo << "Vetor para ordenar:" << std::endl << "[";
+		for (auto v : listaAleatoria)
+		{
+			meuArquivo << v << ", ";
+			i++;
+			if (i == 20)
+			{
+				meuArquivo << std::endl;
+				i = 0;
+			}
+		}
+	}
+	
+	//Abaixo é definido três threads: t_insercao, t_selecao e t_bolha. Cada uma recebe sua respectiva função e como argumento a mesma lista de números aleatórios
 	std::cout << "Iniciando ordenações." << std::endl;
-	std::thread t_insercao(ordenaInsercao, listaAleatoria);
-	t_insercao.join();
 	std::thread t_selecao(ordenaSelecao, listaAleatoria);
-	t_selecao.join();
+	std::thread t_insercao(ordenaInsercao, listaAleatoria);
 	std::thread t_bolha(ordenaBolha, listaAleatoria);
+	/*
+	* join()
+	This synchronizes the moment this function returns with the completion of all the operations in the thread: This blocks the execution of the thread that calls this 
+	function until the function called on construction returns (if it hasn't yet). (https://cplusplus.com/reference/thread/thread/join/)
+	*/
+	t_selecao.join();
+	t_insercao.join(); 
 	t_bolha.join();
 	std::cout << "Fim de execução." << std::endl;
-	
+
 	return 0;
 }
 
@@ -59,7 +67,7 @@ void ordenaInsercao(std::vector<int> v)
 {
 	int inicial, atual;
 	int aux;
-	auto start = std::chrono::system_clock::now(); // uma instância de auto definida como 'start' captura o tempo atual
+	auto start = std::chrono::system_clock::now(); // tempo atual (start)
 	for (inicial = 1; inicial < QUANTIDADE_DE_NUMEROS_ALEATORIOS; inicial++) 
 	{
 		for (atual = inicial - 1; atual >= 0 && v[atual] > v[atual + 1]; atual--) 
@@ -69,8 +77,9 @@ void ordenaInsercao(std::vector<int> v)
 			v[atual + 1] = aux;
 		}
 	}
-	auto end = std::chrono::system_clock::now();
-	std::chrono::duration<double> elapsed_seconds = end - start; // através das duas instâncias de tempo start e end eu calculo o tempo de execução da 
+	auto end = std::chrono::system_clock::now(); // tempo atual (end)
+	// cálculo do tempo decorrido 
+	std::chrono::duration<double> elapsed_seconds = end - start; 
 	// Gravação em arquivo
 	std::fstream meuArquivo;
 	meuArquivo.open("insercao.txt", std::ios::out);
@@ -110,15 +119,26 @@ void ordenaSelecao(std::vector<int> v)
 			v[inicial] = aux;
 		}
 	}
-	// calcula o tempo decorrido na execução
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
-	// Gravação em arquivo
 	std::fstream meuArquivo;
 	meuArquivo.open("selecao.txt", std::ios::out);
 	if (meuArquivo.is_open())
 	{
-		meuArquivo << elapsed_seconds.count() << std::endl;
+		i = 0;
+		meuArquivo << "Tempo decorrido na ordenação: " << elapsed_seconds.count() << std::endl << std::endl;
+		meuArquivo << "Vetor ordenado:" << std::endl << "[";
+		for (auto j : v)
+		{
+			meuArquivo << j << ", ";
+			i++;
+			if (i == 20)
+			{
+				meuArquivo << std::endl;
+				i = 0;
+			}
+		}
+		meuArquivo << "]" << std::endl;
 	}
 	else
 	{
@@ -148,7 +168,6 @@ void ordenaBolha(std::vector<int> v)
 	while (troca == 1);
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
-	// Gravação em arquivo
 	std::fstream meuArquivo;
 	meuArquivo.open("bolha.txt", std::ios::out);
 	if (meuArquivo.is_open())
