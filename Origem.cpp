@@ -9,10 +9,10 @@
 
 #define QUANTIDADE_DE_NUMEROS_ALEATORIOS 10000
 
-/* Aula 09 (14/05/2022) Funções disponibilizadas no moodle [adaptadas]. */
 void ordenaSelecao(std::vector<int> v);
 void ordenaInsercao(std::vector<int> v);
 void ordenaBolha(std::vector<int> v);
+bool elementoRepetido(std::vector<int> v, int num);
 
 int main()
 {
@@ -23,7 +23,14 @@ int main()
 	// Criação de um vetor com a quantidade (QUANTIDADE_DE_NUMEROS_ALEATORIOS) definida na linha 19
 	for (i = 0; i < QUANTIDADE_DE_NUMEROS_ALEATORIOS; i++)
 	{
-		int valorAleatorio = rand() % 100000 + 1; // função rand() obtida através da biblioteca cstdlib. Fornece um inteiro aleatório entre 1 e 10000.
+		int valorAleatorio = rand() % 100000 + 1; // função rand() obtida através da biblioteca cstdlib. Fornece um inteiro aleatório entre 1 e 100000.
+		if (elementoRepetido(listaAleatoria, valorAleatorio))
+		{
+			while (elementoRepetido(listaAleatoria, valorAleatorio))
+			{
+				valorAleatorio = rand() % 100000 + 1;
+			}
+		}
 		listaAleatoria.push_back(valorAleatorio); // adicionando o valorAleatorio a ao vetor listaAleatoria utilizando push_back()
 	}
 
@@ -45,8 +52,8 @@ int main()
 		}
 	}
 	
-	//Abaixo é definido três threads: t_insercao, t_selecao e t_bolha. Cada uma recebe sua respectiva função e como argumento a mesma lista de números aleatórios
 	std::cout << "Iniciando ordenações." << std::endl;
+	//Abaixo é definido três threads: t_insercao, t_selecao e t_bolha. Cada uma recebe sua respectiva função e como argumento a mesma lista de números aleatórios
 	std::thread t_selecao(ordenaSelecao, listaAleatoria);
 	std::thread t_insercao(ordenaInsercao, listaAleatoria);
 	std::thread t_bolha(ordenaBolha, listaAleatoria);
@@ -61,6 +68,59 @@ int main()
 	std::cout << "Fim de execução." << std::endl;
 
 	return 0;
+}
+
+void ordenaSelecao(std::vector<int> v)
+{
+	int i;
+	int valMenor, aux;
+	int posMenor;
+	int inicial;
+	auto start = std::chrono::system_clock::now();
+	for (inicial = 0; inicial < QUANTIDADE_DE_NUMEROS_ALEATORIOS - 1; inicial++)
+	{
+		valMenor = v[inicial];
+		posMenor = inicial;
+		for (i = inicial + 1; i < QUANTIDADE_DE_NUMEROS_ALEATORIOS; i++)
+		{
+			if (v[i] < valMenor)
+			{
+				valMenor = v[i];
+				posMenor = i;
+			}
+		}
+		if (posMenor != inicial)
+		{
+			aux = v[posMenor];
+			v[posMenor] = v[inicial];
+			v[inicial] = aux;
+		}
+	}
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> elapsed_seconds = end - start;
+	std::fstream meuArquivo;
+	meuArquivo.open("selecao.txt", std::ios::out);
+	if (meuArquivo.is_open())
+	{
+		i = 0;
+		meuArquivo << "Tempo decorrido na ordenação: " << elapsed_seconds.count() << std::endl << std::endl;
+		meuArquivo << "Vetor ordenado:" << std::endl << "[";
+		for (auto j : v)
+		{
+			meuArquivo << j << ", ";
+			i++;
+			if (i == 20)
+			{
+				meuArquivo << std::endl;
+				i = 0;
+			}
+		}
+		meuArquivo << "]" << std::endl;
+	}
+	else
+	{
+		std::cout << "Falha ao abrir o arquivo. Não localizado." << std::endl;
+	}
 }
 
 void ordenaInsercao(std::vector<int> v) 
@@ -85,47 +145,7 @@ void ordenaInsercao(std::vector<int> v)
 	meuArquivo.open("insercao.txt", std::ios::out);
 	if (meuArquivo.is_open())
 	{
-		meuArquivo << elapsed_seconds.count() << std::endl;
-	}
-	else
-	{
-		std::cout << "Falha ao abrir o arquivo. Não localizado." << std::endl;
-	}
-}
-
-void ordenaSelecao(std::vector<int> v) 
-{
-	int i;
-	int valMenor, aux;
-	int posMenor;
-	int inicial;
-	auto start = std::chrono::system_clock::now();
-	for (inicial = 0; inicial < QUANTIDADE_DE_NUMEROS_ALEATORIOS - 1; inicial++) 
-	{
-		valMenor = v[inicial];
-		posMenor = inicial;
-		for (i = inicial + 1; i < QUANTIDADE_DE_NUMEROS_ALEATORIOS; i++) 
-		{
-			if (v[i] < valMenor) 
-			{
-				valMenor = v[i];
-				posMenor = i;
-			}
-		}
-		if (posMenor != inicial) 
-		{
-			aux = v[posMenor];
-			v[posMenor] = v[inicial];
-			v[inicial] = aux;
-		}
-	}
-	auto end = std::chrono::system_clock::now();
-	std::chrono::duration<double> elapsed_seconds = end - start;
-	std::fstream meuArquivo;
-	meuArquivo.open("selecao.txt", std::ios::out);
-	if (meuArquivo.is_open())
-	{
-		i = 0;
+		int i = 0;
 		meuArquivo << "Tempo decorrido na ordenação: " << elapsed_seconds.count() << std::endl << std::endl;
 		meuArquivo << "Vetor ordenado:" << std::endl << "[";
 		for (auto j : v)
@@ -172,10 +192,35 @@ void ordenaBolha(std::vector<int> v)
 	meuArquivo.open("bolha.txt", std::ios::out);
 	if (meuArquivo.is_open())
 	{
-		meuArquivo << elapsed_seconds.count() << std::endl;
+		i = 0;
+		meuArquivo << "Tempo decorrido na ordenação: " << elapsed_seconds.count() << std::endl << std::endl;
+		meuArquivo << "Vetor ordenado:" << std::endl << "[";
+		for (auto j : v)
+		{
+			meuArquivo << j << ", ";
+			i++;
+			if (i == 20)
+			{
+				meuArquivo << std::endl;
+				i = 0;
+			}
+		}
+		meuArquivo << "]" << std::endl;
 	}
 	else
 	{
 		std::cout << "Falha ao abrir o arquivo. Não localizado." << std::endl;
 	}
+}
+
+bool elementoRepetido(std::vector<int> v, int num)
+{
+	for (auto i : v)
+	{
+		if (i == num)
+		{
+			return true;
+		}
+	}
+	return false;
 }
